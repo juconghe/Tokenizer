@@ -157,7 +157,7 @@ class NaiveBayes:
         according to this NB model.
         """
         word_count = self.class_word_counts[label][word]
-        p = word_count/float(len(self.class_word_counts[label]))
+        p = word_count/self.class_total_word_counts[label]
         return p
 
     def p_word_given_label_and_pseudocount(self, word, label, alpha):
@@ -167,7 +167,9 @@ class NaiveBayes:
         Returns the probability of word given label wrt psuedo counts.
         alpha - pseudocount parameter
         """
-        return self.class_word_counts[label][word] + alpha 
+        word_count = self.class_word_counts[label][word] + alpha
+        p = word_count/(self.class_total_word_counts[label]+len(self.class_word_counts[label]))
+        return p
 
     def log_likelihood(self, bow, label, alpha):
         """
