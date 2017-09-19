@@ -35,7 +35,7 @@ def n_word_types(word_counts):
     using information from word_counts
     '''
     keys = word_counts.keys()
-    return  len(keys)
+    return len(keys)
 
 
 def n_word_tokens(word_counts):
@@ -44,7 +44,7 @@ def n_word_tokens(word_counts):
     using information from word_counts
     '''
     token_count = 0
-    for _,value in word_counts.iteritems():
+    for _, value in word_counts.iteritems():
         token_count += value
     return token_count
 
@@ -61,21 +61,21 @@ class NaiveBayes:
         self.test_dir = os.path.join(path_to_data, "test")
         # class_total_doc_counts is a dictionary that maps a class (i.e., pos/neg) to
         # the number of documents in the trainning set of that class
-        self.class_total_doc_counts = { POS_LABEL: 0.0,
-                                        NEG_LABEL: 0.0 }
+        self.class_total_doc_counts = {POS_LABEL: 0.0,
+                                       NEG_LABEL: 0.0}
 
         # class_total_word_counts is a dictionary that maps a class (i.e., pos/neg) to
         # the number of words in the training set in documents of that class
-        self.class_total_word_counts = { POS_LABEL: 0.0,
-                                         NEG_LABEL: 0.0 }
+        self.class_total_word_counts = {POS_LABEL: 0.0,
+                                        NEG_LABEL: 0.0}
 
         # class_word_counts is a dictionary of dictionaries. It maps a class (i.e.,
         # pos/neg) to a dictionary of word counts. For example:
         #    self.class_word_counts[POS_LABEL]['awesome']
         # stores the number of times the word 'awesome' appears in documents
         # of the positive class in the training documents.
-        self.class_word_counts = { POS_LABEL: defaultdict(float),
-                                   NEG_LABEL: defaultdict(float) }
+        self.class_word_counts = {POS_LABEL: defaultdict(float),
+                                  NEG_LABEL: defaultdict(float)}
 
     def train_model(self):
         """
@@ -86,9 +86,9 @@ class NaiveBayes:
 
         pos_path = os.path.join(self.train_dir, POS_LABEL)
         neg_path = os.path.join(self.train_dir, NEG_LABEL)
-        for (p, label) in [ (pos_path, POS_LABEL), (neg_path, NEG_LABEL) ]:
+        for (p, label) in [(pos_path, POS_LABEL), (neg_path, NEG_LABEL)]:
             for f in os.listdir(p):
-                with open(os.path.join(p,f),'r') as doc:
+                with open(os.path.join(p, f), 'r') as doc:
                     content = doc.read()
                     self.tokenize_and_update_model(content, label)
         self.report_statistics_after_training()
@@ -122,7 +122,7 @@ class NaiveBayes:
         """
         # update class_word_counts
         self.class_total_doc_counts[label] += 1
-        for key,value in bow.iteritems():
+        for key, value in bow.iteritems():
             self.class_total_word_counts[label] += value
             self.vocab.add(key)
             if key in self.class_word_counts[label]:
@@ -147,7 +147,7 @@ class NaiveBayes:
         """
         Returns the most frequent n tokens for documents with class 'label'.
         """
-        return sorted(self.class_word_counts[label].items(), key=lambda (w,c): -c)[:n]
+        return sorted(self.class_word_counts[label].items(), key=lambda (w, c): -c)[:n]
 
     def p_word_given_label(self, word, label):
         """
@@ -157,7 +157,7 @@ class NaiveBayes:
         according to this NB model.
         """
         word_count = self.class_word_counts[label][word]
-        p = word_count/self.class_total_word_counts[label]
+        p = word_count / self.class_total_word_counts[label]
         return p
 
     def p_word_given_label_and_pseudocount(self, word, label, alpha):
@@ -168,7 +168,9 @@ class NaiveBayes:
         alpha - pseudocount parameter
         """
         word_count = self.class_word_counts[label][word] + alpha
-        p = word_count/(self.class_total_word_counts[label]+len(self.class_word_counts[label]))
+        p = word_count / \
+            (self.class_total_word_counts[label] +
+             len(self.class_word_counts[label]))
         return p
 
     def log_likelihood(self, bow, label, alpha):
@@ -232,9 +234,9 @@ class NaiveBayes:
 
         pos_path = os.path.join(self.test_dir, POS_LABEL)
         neg_path = os.path.join(self.test_dir, NEG_LABEL)
-        for (p, label) in [ (pos_path, POS_LABEL), (neg_path, NEG_LABEL) ]:
+        for (p, label) in [(pos_path, POS_LABEL), (neg_path, NEG_LABEL)]:
             for f in os.listdir(p):
-                with open(os.path.join(p,f),'r') as doc:
+                with open(os.path.join(p, f), 'r') as doc:
                     content = doc.read()
                     bow = tokenize_doc(content)
                     if self.classify(bow, alpha) == label:
