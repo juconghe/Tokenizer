@@ -120,8 +120,15 @@ class NaiveBayes:
           - the vocabulary seen so far (self.vocab)
           - the number of documents seen of each label (self.class_total_doc_counts)
         """
-
-        pass
+        # update class_word_counts
+        self.class_total_doc_counts[label] += 1
+        for key,value in bow.iteritems():
+            self.class_total_word_counts[label] += value
+            self.vocab.add(key)
+            if key in self.class_word_counts[label]:
+                self.class_word_counts[label][key] += value
+            else:
+                self.class_word_counts[label][key] = value
 
     def tokenize_and_update_model(self, doc, label):
         """
@@ -149,7 +156,9 @@ class NaiveBayes:
         Returns the probability of word given label
         according to this NB model.
         """
-        pass
+        word_count = self.class_word_counts[label][word]
+        p = word_count/float(len(self.class_word_counts[label]))
+        return p
 
     def p_word_given_label_and_pseudocount(self, word, label, alpha):
         """
@@ -158,7 +167,7 @@ class NaiveBayes:
         Returns the probability of word given label wrt psuedo counts.
         alpha - pseudocount parameter
         """
-        pass
+        return self.class_word_counts[label][word] + alpha 
 
     def log_likelihood(self, bow, label, alpha):
         """
