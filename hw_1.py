@@ -203,8 +203,7 @@ class NaiveBayes:
         Computes the unnormalized log posterior (of doc being of class 'label').
         bow - a bag of words (i.e., a tokenized document)
         """
-        normal_posterior = self.log_likelihood(bow, label, alpha) + self.log_prior(label)
-        unnormalized_posterior = math.pow(10, normal_posterior)
+        unnormalized_posterior = self.log_likelihood(bow, label, alpha) + self.log_prior(label)
         return unnormalized_posterior
 
     def classify(self, bow, alpha):
