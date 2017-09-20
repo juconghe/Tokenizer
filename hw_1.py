@@ -170,7 +170,7 @@ class NaiveBayes:
         word_count = self.class_word_counts[label][word] + alpha
         p = word_count / \
             (self.class_total_word_counts[label] +
-             len(self.class_word_counts[label]))
+             alpha * len(self.vocab))
         return p
 
     def log_likelihood(self, bow, label, alpha):
@@ -182,7 +182,9 @@ class NaiveBayes:
         label - either the positive or negative label
         alpha - float; pseudocount parameter
         """
-        pass
+        x = [math.log10(self.p_word_given_label_and_pseudocount(
+            i, label, alpha)) for i in bow.keys()]
+        return sum(x)
 
     def log_prior(self, label):
         """
@@ -190,7 +192,9 @@ class NaiveBayes:
 
         Returns the log prior of a document having the class 'label'.
         """
-        pass
+        p = self.class_total_doc_counts[label] / (
+            self.class_total_doc_counts[POS_LABEL] + self.class_total_doc_counts[NEG_LABEL])
+        return math.log10(p)
 
     def unnormalized_log_posterior(self, bow, label, alpha):
         """
@@ -199,7 +203,9 @@ class NaiveBayes:
         Computes the unnormalized log posterior (of doc being of class 'label').
         bow - a bag of words (i.e., a tokenized document)
         """
-        pass
+        normal_posterior = self.log_likelihood(bow, label, alpha) + self.log_prior(label)
+        unnormalized_posterior = math.pow(10, normal_posterior)
+        return unnormalized_posterior
 
     def classify(self, bow, alpha):
         """
@@ -210,7 +216,12 @@ class NaiveBayes:
         (depending on which resulted in the higher unnormalized log posterior)
         bow - a bag of words (i.e., a tokenized document)
         """
-        pass
+        p_pos = self.unnormalized_log_posterior(bow, POS_LABEL, alpha)
+        p_neg = self.unnormalized_log_posterior(bow, NEG_LABEL, alpha)
+        if p_pos > p_neg:
+            return POS_LABEL
+        else:
+            return NEG_LABEL
 
     def likelihood_ratio(self, word, alpha):
         """
@@ -218,7 +229,9 @@ class NaiveBayes:
 
         Returns the ratio of P(word|pos) to P(word|neg).
         """
-        pass
+        w_pos = self.p_word_given_label_and_pseudocount(word, POS_LABEL, alpha)
+        w_neg = self.p_word_given_label_and_pseudocount(word, NEG_LABEL, alpha)
+        return w_pos / w_neg
 
     def evaluate_classifier_accuracy(self, alpha):
         """
